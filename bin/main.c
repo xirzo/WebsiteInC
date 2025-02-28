@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    char *response = read_file(fptr);
+    char *html_body = read_file(fptr);
     fclose(fptr);
 
     while (1) {
@@ -64,7 +64,19 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-        send(client_fd, response, strlen(response), 0);
+        char headers[512];
+        int content_length = strlen(html_body);
+
+        snprintf(headers, sizeof(headers),
+                 "HTTP/1.1 200 OK\r\n"
+                 "Content-Type: text/html\r\n"
+                 "Content-Length: %d\r\n"
+                 "Connection: close\r\n"
+                 "\r\n",
+                 content_length);
+
+        send(client_fd, headers, strlen(headers), 0);
+        send(client_fd, html_body, content_length, 0);
 
         printf("Client connected.\n");
 
