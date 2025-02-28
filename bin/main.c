@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
 
         char headers[512];
         int content_length = strlen(html_body);
-
         snprintf(headers, sizeof(headers),
                  "HTTP/1.1 200 OK\r\n"
                  "Content-Type: text/html\r\n"
