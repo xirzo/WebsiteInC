@@ -10,7 +10,7 @@ int32_t get_routes_index(Routes *routes, char key[]) {
     return -1;
 }
 
-void insert_route(Routes *routes, char key[], int value) {
+void insert_route(Routes *routes, char key[], char value[]) {
     int index = get_routes_index(routes, key);
 
     if (index == -1) {
@@ -22,11 +22,11 @@ void insert_route(Routes *routes, char key[], int value) {
     }
 }
 
-int32_t get_route(Routes *routes, char key[]) {
+char *get_route(Routes *routes, char key[]) {
     int32_t index = get_routes_index(routes, key);
 
     if (index == -1) {
-        return -1;
+        return NULL;
     } else {
         return routes->values[index];
     }

@@ -11,11 +11,12 @@
 
 #define MAX_PENDING_CON 10
 
-Server* create_server(const char* port) {
+Server* create_server(const char* port, Routes* routes) {
     Server* s = malloc(sizeof(Server));
 
     s->fd = -1;
     s->port = port;
+    s->routes = routes;
 
     return s;
 }
@@ -88,7 +89,7 @@ void close_server(Server* server) {
     freeaddrinfo(server->res);
 }
 
-int32_t handle_client_loop(Server* server, void (*function)(int32_t)) {
+int32_t handle_client_loop(Server* server, void (*function)(Server*, int32_t)) {
     while (1) {
         struct sockaddr_storage client_addr;
         socklen_t client_addrlen = sizeof(client_addr);
@@ -102,7 +103,7 @@ int32_t handle_client_loop(Server* server, void (*function)(int32_t)) {
 
         printf("Client connected.\n");
 
-        (*function)(client_fd);
+        (*function)(server, client_fd);
 
         close(client_fd);
     }

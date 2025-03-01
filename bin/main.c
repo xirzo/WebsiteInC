@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "router.h"
 #include "server.h"
 
 #define PORT "5000"
@@ -37,7 +38,7 @@ char *read_file(FILE *f) {
     return buffer;
 }
 
-void client_handling_loop(int32_t client_fd) {
+void client_handling_loop(Server *s, int32_t client_fd) {
     char client_buffer[CLIENT_BUFFER_SIZE] = {0};
     ssize_t value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
 
@@ -60,11 +61,13 @@ void client_handling_loop(int32_t client_fd) {
 
     parse_request_line(r, client_buffer);
 
-    char *filename = malloc(sizeof(r->uri));
+    char *key = malloc(sizeof(r->uri));
 
-    strcpy(filename, r->uri + 1);
+    strcpy(key, r->uri + 1);
 
-    printf("%s\n", filename);
+    printf("%s\n", key);
+
+    char *filename = get_route(s->routes, key);
 
     FILE *fptr = fopen(filename, "r");
 
@@ -90,11 +93,16 @@ void client_handling_loop(int32_t client_fd) {
     send(client_fd, html_body, content_length, 0);
 
     free_http_request(r);
-    free(filename);
+    free(key);
 }
 
 int main(int argc, char *argv[]) {
-    Server *s = create_server(PORT);
+    Routes *routes = malloc(sizeof(*routes));
+
+    insert_route(routes, "home", "home.html");
+    insert_route(routes, "blog", "blog.html");
+
+    Server *s = create_server(PORT, routes);
 
     start_server(s);
 
