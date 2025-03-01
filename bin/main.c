@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
         if (value_read >= CLIENT_BUFFER_SIZE - 1) {
             printf("Client data exceeds buffer size. Truncating.\n");
-            client_buffer[CLIENT_BUFFER_SIZE - 1] = '\0';  // Truncate and null-terminate
+            client_buffer[CLIENT_BUFFER_SIZE - 1] = '\0';
         }
 
         printf("Raw data received: %s\n", client_buffer);

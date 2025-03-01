@@ -50,7 +50,7 @@ int32_t start_server(Server* server) {
     int opt = 1;
 
     if (setsockopt(server->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("setsockopt");
+        printf("Server setsockopt error: %s\n", strerror(errno));
         return -1;
     }
 
