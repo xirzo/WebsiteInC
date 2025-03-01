@@ -99,8 +99,9 @@ void client_handling_loop(Server *s, int32_t client_fd) {
 int main(int argc, char *argv[]) {
     Routes *routes = malloc(sizeof(*routes));
 
-    insert_route(routes, "home", "home.html");
+    insert_route(routes, "", "home.html");
     insert_route(routes, "blogs", "blogs.html");
+    insert_route(routes, "blogs/1", "blog_1.html");
 
     Server *s = create_server(PORT, routes);
 
