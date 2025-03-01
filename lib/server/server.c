@@ -87,3 +87,26 @@ void close_server(Server* server) {
 
     freeaddrinfo(server->res);
 }
+
+int32_t handle_client_loop(Server* server, void (*function)(int32_t)) {
+    while (1) {
+        struct sockaddr_storage client_addr;
+        socklen_t client_addrlen = sizeof(client_addr);
+        int client_fd;
+
+        if ((client_fd = accept(server->fd, (struct sockaddr*)&client_addr,
+                                &client_addrlen)) == -1) {
+            printf("Server accept error: %s\n", strerror(errno));
+            return -1;
+        }
+
+        printf("Client connected.\n");
+
+        (*function)(client_fd);
+
+        close(client_fd);
+    }
+
+    close_server(server);
+    return 0;
+}
