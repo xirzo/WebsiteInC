@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     Routes *routes = malloc(sizeof(*routes));
 
     insert_route(routes, "home", "home.html");
-    insert_route(routes, "blog", "blog.html");
+    insert_route(routes, "blogs", "blogs.html");
 
     Server *s = create_server(PORT, routes);
 
