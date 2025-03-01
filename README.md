@@ -1,51 +1,52 @@
-# C-Website 🖥️
+# 🖥️C-Website
 
 [![C Language](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![CMake](https://img.shields.io/badge/Build-CMake-green.svg)](https://cmake.org/)
-
-## Overview 💡
-
 This project aims to create a fully functional website using the C programming language.
 
-## Features ✨
+## ✨ Features
 
-- **Pure C Implementation**: Built entirely in C for maximum performance and minimal resource usage
-- **File-Based Routing**: Serves content based on requested URI paths
+- **Pure C Implementation**: Built using standard C libraries and minimal dependencies
+- **Simple HTTP Server**: Handles basic HTTP requests and serves static content
+- **Routing System**: Maps URLs to file resources
 
-## How It Works 🛠️
+## 🛠 Requirements
 
-The server listens on port 5000 by default and processes incoming HTTP requests. When a client connects, the server:
+- ⚙️ C compiler (GCC or Clang recommended)
+- 🛠 CMake (version 3.10 or higher)
+- 📦 [Http Parser Library](https://github.com/xirzo/httpparser)
 
-1. Reads the HTTP request
-2. Parses the URI path from the request
-3. Maps the URI to a corresponding file on the filesystem
-4. Serves the file content with appropriate HTTP headers
-
-For example, requesting `/index.html` will serve the content of the `index.html` file from the server's root directory.
-
-## Installation 📦
-
-### Prerequisites
-
-- C compiler (GCC or Clang recommended)
-- CMake (3.10 or higher)
-- http_parser library
-
-### Building
+## 🔧 Building the Project
 
 ```bash
+# Clone the repository
+git clone https://github.com/xirzo/C-Website.git
+cd C-Website
+
+# Create build directory
 mkdir build
 cd build
+
+# Configure and build
 cmake ..
 make
 ```
 
-## Usage 🚀
+## 🚀 Usage
 
-Run the compiled executable to start the server:
+After building, run the server:
 
 ```bash
-./c-website
+./c_website
 ```
 
-The server will start listening on port 5000. You can then access it by navigating to `http://localhost:5000` in your web browser.
+The server will start on port 5000 by default. You can access the website at `http://localhost:5000`.
+
+## ⚙️ How It Works
+
+The router maps the requested URI to a file. Then the server uses a simple HTTP parser to process incoming requests. When a request comes in, the router provides a file path then server reads the file and sends it back as an HTTP response.
+
+Current routes:
+
+- `/` → `index.html`
+- `/style.css` → `style.css`
