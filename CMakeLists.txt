@@ -1,6 +1,6 @@
 # Build command example cmake --preset=clang -D CMAKE_BUILD_TYPE=DEBUG ../..
 
-cmake_minimum_required(VERSION 3.31.4)
+cmake_minimum_required(VERSION 3.25.1)
 
 project(
   c-website
