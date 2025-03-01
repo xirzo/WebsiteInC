@@ -9,5 +9,7 @@ project(
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(HttpParser REQUIRED)
+
 add_subdirectory(lib)
 add_subdirectory(bin)

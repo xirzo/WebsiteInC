@@ -47,6 +47,13 @@ int32_t start_server(Server* server) {
 
     int32_t b = 0;
 
+    int opt = 1;
+
+    if (setsockopt(server->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        perror("setsockopt");
+        return -1;
+    }
+
     if ((b = bind(server->fd, server->res->ai_addr, server->res->ai_addrlen)) == -1) {
         printf("Server bind error: %s\n", strerror(errno));
         return -1;
@@ -58,9 +65,6 @@ int32_t start_server(Server* server) {
         printf("Server listen error: %s\n", strerror(errno));
         return -1;
     }
-
-    int opt = 1;
-    setsockopt(server->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     printf("Server is listening on port: %s\n", server->port);
 

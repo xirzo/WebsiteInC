@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <http_parser.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 
 #define PORT "5000"
 #define FILENAME "index.html"
+#define CLIENT_BUFFER_SIZE 4096
 
 char *read_file(FILE *f) {
     if (f == NULL || fseek(f, 0, SEEK_END)) {
@@ -43,15 +45,8 @@ int main(int argc, char *argv[]) {
 
     size_t current_client = -1;
 
-    FILE *fptr = fopen(FILENAME, "r");
-
-    if (fptr == NULL) {
-        printf("There is no file to read from\n");
-        return EXIT_FAILURE;
-    }
-
-    char *html_body = read_file(fptr);
-    fclose(fptr);
+    ssize_t value_read;
+    char client_buffer[CLIENT_BUFFER_SIZE] = {0};
 
     while (1) {
         struct sockaddr_storage client_addr;
@@ -63,6 +58,44 @@ int main(int argc, char *argv[]) {
             printf("Server accept error: %s\n", strerror(errno));
             return -1;
         }
+
+        value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
+
+        if (value_read <= 0) {
+            printf("Client disconnected or read error: %s\n", strerror(errno));
+            close(client_fd);
+            continue;
+        }
+
+        if (value_read >= CLIENT_BUFFER_SIZE - 1) {
+            printf("Client data exceeds buffer size. Truncating.\n");
+            client_buffer[CLIENT_BUFFER_SIZE - 1] = '\0';  // Truncate and null-terminate
+        }
+
+        printf("Raw data received: %s\n", client_buffer);
+        printf("%zd\n", value_read);
+
+        HttpRequest *r;
+
+        init_http_request(&r);
+
+        parse_request_line(r, client_buffer);
+
+        char *filename = malloc(sizeof(r->uri));
+
+        strcpy(filename, r->uri + 1);
+
+        printf("%s\n", filename);
+
+        FILE *fptr = fopen(filename, "r");
+
+        printf("There is no file to read from\n");
+        if (fptr == NULL) {
+            return EXIT_FAILURE;
+        }
+
+        char *html_body = read_file(fptr);
+        fclose(fptr);
 
         char headers[512];
         int content_length = strlen(html_body);
@@ -79,6 +112,8 @@ int main(int argc, char *argv[]) {
 
         printf("Client connected.\n");
 
+        free_http_request(r);
+        free(filename);
         close(client_fd);
     }
 
