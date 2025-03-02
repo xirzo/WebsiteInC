@@ -5,37 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "file_reader.h"
 #include "server.h"
-
-#define PORT "5000"
-#define FILENAME "index.html"
-
-char *read_file(FILE *f) {
-    if (f == NULL || fseek(f, 0, SEEK_END)) {
-        return NULL;
-    }
-
-    long length = ftell(f);
-
-    rewind(f);
-
-    if (length == -1 || (unsigned long)length >= SIZE_MAX) {
-        return NULL;
-    }
-
-    size_t ulength = (size_t)length;
-
-    char *buffer = malloc(ulength + 1);
-
-    if (buffer == NULL || fread(buffer, 1, ulength, f) != ulength) {
-        free(buffer);
-        return NULL;
-    }
-
-    buffer[ulength] = '\0';
-
-    return buffer;
-}
 
 void client_handling_loop(Server *s, int32_t client_fd) {
     char client_buffer[CLIENT_BUFFER_SIZE] = {0};
@@ -101,14 +72,9 @@ int main(int argc, char *argv[]) {
     insert_route(routes, "", "index.html");
     insert_route(routes, "style.css", "style.css");
 
-    Server *s = create_server(PORT, routes);
+    Server *s = create_server("5000", routes);
 
     start_server(s);
-
-    size_t current_client = -1;
-
-    ssize_t value_read;
-    char client_buffer[CLIENT_BUFFER_SIZE] = {0};
 
     handle_client_loop(s, client_handling_loop);
 
