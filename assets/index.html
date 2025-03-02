@@ -1,41 +1,41 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XIRZO TERMINAL</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="crt">
-        <div class="screen">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>XIRZO TERMINAL</title>
+      <link rel="stylesheet" href="style.css">
+      <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+   </head>
+   <body>
+      <div class="crt">
+         <div class="screen">
             <div class="scanline"></div>
             <div class="terminal">
-                <div class="terminal-header">
-                    <div class="terminal-buttons">
-                        <span class="button"></span>
-                        <span class="button"></span>
-                        <span class="button"></span>
-                    </div>
-                    <div class="terminal-title">XIRZO-OS v1.0</div>
-                </div>
-                <div class="terminal-content">
-                    <div class="boot-sequence">
-                        <p>SYSTEM BOOT SEQUENCE INITIALIZED</p>
-                        <p>LOADING CORE MODULES...</p>
-                        <p>INITIALIZING MEMORY BANKS... OK</p>
-                        <p>CHECKING SYSTEM INTEGRITY... OK</p>
-                        <p>ESTABLISHING NETWORK CONNECTION... OK</p>
-                        <p>WELCOME TO XIRZO TERMINAL</p>
-                        <p>USER: xirzo</p>
-                        <p>STATUS: ONLINE</p>
-                        <p>==============================</p>
-                    </div>
-                    <div class="command-line">
-                        <span class="prompt">xirzo@pc:~$</span> <span class="command">cat profile.txt</span>
-                    </div>
-                    <div class="command-output">
-                        <pre>
+               <div class="terminal-header">
+                  <div class="terminal-buttons">
+                     <span class="button"></span>
+                     <span class="button"></span>
+                     <span class="button"></span>
+                  </div>
+                  <div class="terminal-title">XIRZO-OS v1.0</div>
+               </div>
+               <div class="terminal-content">
+                  <div class="boot-sequence">
+                     <p>SYSTEM BOOT SEQUENCE INITIALIZED</p>
+                     <p>LOADING CORE MODULES...</p>
+                     <p>INITIALIZING MEMORY BANKS... OK</p>
+                     <p>CHECKING SYSTEM INTEGRITY... OK</p>
+                     <p>ESTABLISHING NETWORK CONNECTION... OK</p>
+                     <p>WELCOME TO XIRZO TERMINAL</p>
+                     <p>USER: xirzo</p>
+                     <p>STATUS: ONLINE</p>
+                  </div>
+                  <div class="command-line">
+                     <span class="prompt">xirzo@pc:~$</span> <span class="command">cat profile.txt</span>
+                  </div>
+                  <div class="command-output">
+                     <pre>
+
          d8b                           
          Y8P                           
                                        
@@ -44,41 +44,46 @@
   X88K   888 888       d88P   888  888 
 .d8""8b. 888 888      d88P    Y88..88P 
 888  888 888 888     88888888  "Y88P"  
-                                       
-======================================
+                            </pre>
+                     <b>
+                     Welcome to My Personal Website!
+                     </b>
+                     <p>
+                        Hi there! I’m xirzo, a tech enthusiast currently studying Software Engineering
+                        at ITMO University in Saint Petersburg. I really enjoy recreational programming,
+                        actually this specific website is written in C as a some kind of "challenge".
+                     </p>
+                     <br/>
+                     <p>
+                         Also checkout my GitHub:
+                     </p>
 
-WELCOME TO MY WEBSITE
-
-Checkout my GitHub:
-<a href="https://github.com/xirzo" target="_blank" class="blink">https://github.com/xirzo</a>
-
-======================================
-                        </pre>
-                    </div>
-                    <div class="command-line">
-                        <span class="prompt">xirzo@pc:~$</span> <span class="cursor blink">█</span>
-                    </div>
-                </div>
+                     <a href="https://github.com/xirzo" target="_blank" class="blink">https://github.com/xirzo</a>
+                  </div>
+                  <div class="command-line">
+                     <span class="prompt">xirzo@pc:~$</span> <span class="cursor blink">█</span>
+                  </div>
+               </div>
             </div>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const commandElement = document.querySelector('.command');
-            const originalCommand = commandElement.textContent;
-
-            commandElement.textContent = '';
-            
-            let i = 0;
-            const typeInterval = setInterval(() => {
-                if (i < originalCommand.length) {
-                    commandElement.textContent += originalCommand.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(typeInterval);
-                }
-            }, 100);
-        });
-    </script>
-</body>
+         </div>
+      </div>
+      <script>
+         document.addEventListener('DOMContentLoaded', function() {
+             const commandElement = document.querySelector('.command');
+             const originalCommand = commandElement.textContent;
+         
+             commandElement.textContent = '';
+             
+             let i = 0;
+             const typeInterval = setInterval(() => {
+                 if (i < originalCommand.length) {
+                     commandElement.textContent += originalCommand.charAt(i);
+                     i++;
+                 } else {
+                     clearInterval(typeInterval);
+                 }
+             }, 100);
+         });
+      </script>
+   </body>
 </html>
