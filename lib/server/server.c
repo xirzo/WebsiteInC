@@ -99,8 +99,6 @@ void default_client_loop(Server* s, int32_t client_fd) {
 
     strcpy(key, r->uri + 1);
 
-    printf("%s\n", key);
-
     char* filename = get_route(s->routes, key);
 
     FILE* fptr = fopen(filename, "r");
