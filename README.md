@@ -2,7 +2,12 @@
 
 [![C Language](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![CMake](https://img.shields.io/badge/Build-CMake-green.svg)](https://cmake.org/)
+
+
 This project aims to create a fully functional website using the C programming language.
+
+![image](https://github.com/user-attachments/assets/f0fff757-9d7b-452c-851d-24035820b5bd)
+
 
 ## ✨ Features
 
