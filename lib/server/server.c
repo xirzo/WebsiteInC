@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include <errno.h>
+#include <http_parser.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "file_reader.h"
 
 #define MAX_PENDING_CON 10
 
@@ -69,6 +72,67 @@ int32_t start_server(Server* server) {
 
     printf("Server is listening on port: %s\n", server->port);
 
+    return 0;
+}
+
+void default_client_loop(Server* s, int32_t client_fd) {
+    char client_buffer[CLIENT_BUFFER_SIZE] = {0};
+    ssize_t value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
+
+    if (value_read <= 0) {
+        printf("Client disconnected or read error: %s\n", strerror(errno));
+        return;
+    }
+
+    if (value_read >= CLIENT_BUFFER_SIZE - 1) {
+        printf("Client data exceeds buffer size. Truncating.\n");
+        client_buffer[CLIENT_BUFFER_SIZE - 1] = '\0';
+    }
+
+    HttpRequest* r;
+
+    init_http_request(&r);
+
+    parse_request_line(r, client_buffer);
+
+    char* key = malloc(sizeof(r->uri));
+
+    strcpy(key, r->uri + 1);
+
+    printf("%s\n", key);
+
+    char* filename = get_route(s->routes, key);
+
+    FILE* fptr = fopen(filename, "r");
+
+    if (fptr == NULL) {
+        printf("There is no file to read from\n");
+        return;
+    }
+
+    char* html_body = read_file(fptr);
+    fclose(fptr);
+
+    char headers[512];
+    int content_length = strlen(html_body);
+    snprintf(headers, sizeof(headers),
+             "HTTP/1.1 200 OK\r\n"
+             "Content-Type: text/html\r\n"
+             "Content-Length: %d\r\n"
+             "Connection: close\r\n"
+             "\r\n",
+             content_length);
+
+    send(client_fd, headers, strlen(headers), 0);
+    send(client_fd, html_body, content_length, 0);
+
+    free_http_request(r);
+    free(key);
+}
+
+int32_t start_server_with_default_loop(Server* server) {
+    start_server(server);
+    handle_client_loop(server, default_client_loop);
     return 0;
 }
 
