@@ -5,7 +5,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "router.h"
 #include "server.h"
 
 #define PORT "5000"
