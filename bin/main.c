@@ -6,14 +6,14 @@
 int main(int argc, char *argv[]) {
     Routes *routes = malloc(sizeof(*routes));
 
-    insert_route(routes, "", "index.html");
-    insert_route(routes, "style.css", "style.css");
+    insertRoute(routes, "", "index.html");
+    insertRoute(routes, "style.css", "style.css");
 
-    Server *s = create_server("5000", routes);
+    Server *s = createServer("5000", routes);
 
-    start_server_with_default_loop(s);
+    startServerWithDefaultLoop(s);
 
-    close_server(s);
+    closeServer(s);
 
     return EXIT_SUCCESS;
 }

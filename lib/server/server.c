@@ -14,7 +14,7 @@
 
 #define MAX_PENDING_CON 10
 
-Server* create_server(const char* port, Routes* routes) {
+Server* createServer(const char* port, Routes* routes) {
     Server* s = malloc(sizeof(Server));
 
     s->fd = -1;
@@ -24,11 +24,11 @@ Server* create_server(const char* port, Routes* routes) {
     return s;
 }
 
-void free_server(Server* server) {
+void freeServer(Server* server) {
     free(server);
 }
 
-int32_t start_server(Server* server) {
+int32_t startServer(Server* server) {
     struct addrinfo hints;
 
     memset(&hints, 0, sizeof(hints));
@@ -99,7 +99,7 @@ void default_client_loop(Server* s, int32_t client_fd) {
 
     strcpy(key, r->uri + 1);
 
-    char* filename = get_route(s->routes, key);
+    char* filename = getRoute(s->routes, key);
 
     FILE* fptr = fopen(filename, "r");
 
@@ -128,13 +128,13 @@ void default_client_loop(Server* s, int32_t client_fd) {
     free(key);
 }
 
-int32_t start_server_with_default_loop(Server* server) {
-    start_server(server);
-    handle_client_loop(server, default_client_loop);
+int32_t startServerWithDefaultLoop(Server* server) {
+    startServer(server);
+    setClientLoop(server, default_client_loop);
     return 0;
 }
 
-void close_server(Server* server) {
+void closeServer(Server* server) {
     if (server->fd == -1) {
         printf("Server fd is not initalized to be closed");
         return;
@@ -151,7 +151,7 @@ void close_server(Server* server) {
     freeaddrinfo(server->res);
 }
 
-int32_t handle_client_loop(Server* server, void (*function)(Server*, int32_t)) {
+int32_t setClientLoop(Server* server, void (*function)(Server*, int32_t)) {
     while (1) {
         struct sockaddr_storage client_addr;
         socklen_t client_addrlen = sizeof(client_addr);
@@ -170,6 +170,6 @@ int32_t handle_client_loop(Server* server, void (*function)(Server*, int32_t)) {
         close(client_fd);
     }
 
-    close_server(server);
+    closeServer(server);
     return 0;
 }

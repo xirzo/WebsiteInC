@@ -14,8 +14,8 @@ typedef struct Routes
     char *values[MAX_NUMBER_OF_ROUTES];
 } Routes;
 
-int32_t get_routes_index(Routes *routes, char key[]);
-void insert_route(Routes *routes, char key[], char value[]);
-char *get_route(Routes *routes, char key[]);
+int32_t getRoutesIndex(Routes *routes, char key[]);
+void insertRoute(Routes *routes, char key[], char value[]);
+char *getRoute(Routes *routes, char key[]);
 
 #endif

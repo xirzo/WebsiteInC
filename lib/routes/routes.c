@@ -1,6 +1,6 @@
 #include "routes.h"
 
-int32_t get_routes_index(Routes *routes, char key[]) {
+int32_t getRoutesIndex(Routes *routes, char key[]) {
     for (size_t i = 0; i < routes->size; i++) {
         if (strcmp(routes->keys[i], key) == 0) {
             return i;
@@ -10,8 +10,8 @@ int32_t get_routes_index(Routes *routes, char key[]) {
     return -1;
 }
 
-void insert_route(Routes *routes, char key[], char value[]) {
-    int index = get_routes_index(routes, key);
+void insertRoute(Routes *routes, char key[], char value[]) {
+    int index = getRoutesIndex(routes, key);
 
     if (index == -1) {
         strcpy(routes->keys[routes->size], key);
@@ -22,8 +22,8 @@ void insert_route(Routes *routes, char key[], char value[]) {
     }
 }
 
-char *get_route(Routes *routes, char key[]) {
-    int32_t index = get_routes_index(routes, key);
+char *getRoute(Routes *routes, char key[]) {
+    int32_t index = getRoutesIndex(routes, key);
 
     if (index == -1) {
         return NULL;
