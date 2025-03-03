@@ -1,15 +1,23 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "server.h"
 
-int main(int argc, char *argv[]) {
+int main(void) {
     Routes *routes = malloc(sizeof(*routes));
+
+    const char *port = getenv("port");
+
+    if (port == NULL || strlen(port) == 0) {
+        printf("You did not specifty \"port\" environmental variable\n");
+        return EXIT_FAILURE;
+    }
 
     insertRoute(routes, "", "index.html");
     insertRoute(routes, "style.css", "style.css");
 
-    Server *s = createServer("5000", routes);
+    Server *s = createServer(port, routes);
 
     startServerWithDefaultLoop(s);
 
