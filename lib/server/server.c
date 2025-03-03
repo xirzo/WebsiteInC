@@ -10,9 +10,95 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "file_reader.h"
-
 #define MAX_PENDING_CON 10
+
+typedef struct
+{
+    const char* extension;
+    const char* content_type;
+} ContentTypeMapping;
+
+ContentTypeMapping content_type_table[] = {
+    {"jar", "application/java-archive"},
+    {"x12", "application/EDI-X12"},
+    {"edi", "application/EDIFACT"},
+    {"js", "application/javascript"},
+    {"bin", "application/octet-stream"},
+    {"ogg", "application/ogg"},
+    {"pdf", "application/pdf"},
+    {"xhtml", "application/xhtml+xml"},
+    {"swf", "application/x-shockwave-flash"},
+    {"json", "application/json"},
+    {"jsonld", "application/ld+json"},
+    {"xml", "application/xml"},
+    {"zip", "application/zip"},
+    {"form", "application/x-www-form-urlencoded"},
+
+    {"mp3", "audio/mpeg"},
+    {"wma", "audio/x-ms-wma"},
+    {"ra", "audio/vnd.rn-realaudio"},
+    {"wav", "audio/x-wav"},
+
+    {"gif", "image/gif"},
+    {"jpeg", "image/jpeg"},
+    {"jpg", "image/jpeg"},
+    {"png", "image/png"},
+    {"tiff", "image/tiff"},
+    {"ico", "image/vnd.microsoft.icon"},
+    {"icon", "image/x-icon"},
+    {"djvu", "image/vnd.djvu"},
+    {"svg", "image/svg+xml"},
+
+    {"mixed", "multipart/mixed"},
+    {"alternative", "multipart/alternative"},
+    {"related", "multipart/related"},
+    {"form-data", "multipart/form-data"},
+
+    {"css", "text/css"},
+    {"csv", "text/csv"},
+    {"event-stream", "text/event-stream"},
+    {"html", "text/html"},
+    {"htm", "text/html"},
+    {"js", "text/javascript"},
+    {"txt", "text/plain"},
+    {"xml", "text/xml"},
+
+    {"mpeg", "video/mpeg"},
+    {"mp4", "video/mp4"},
+    {"mov", "video/quicktime"},
+    {"wmv", "video/x-ms-wmv"},
+    {"avi", "video/x-msvideo"},
+    {"flv", "video/x-flv"},
+    {"webm", "video/webm"},
+
+    {"apk", "application/vnd.android.package-archive"},
+    {"odt", "application/vnd.oasis.opendocument.text"},
+    {"ods", "application/vnd.oasis.opendocument.spreadsheet"},
+    {"odp", "application/vnd.oasis.opendocument.presentation"},
+    {"odg", "application/vnd.oasis.opendocument.graphics"},
+    {"xls", "application/vnd.ms-excel"},
+    {"xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+    {"ppt", "application/vnd.ms-powerpoint"},
+    {"pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+    {"doc", "application/msword"},
+    {"docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+    {"xul", "application/vnd.mozilla.xul+xml"},
+
+    {NULL, "text/plain"}};
+
+const char* getContentType(const char* extension) {
+    size_t i = 0;
+
+    while (content_type_table[i].extension != NULL) {
+        if (strcmp(extension, content_type_table[i].extension) == 0) {
+            return content_type_table[i].content_type;
+        }
+
+        i++;
+    }
+
+    return content_type_table[i].content_type;
+}
 
 Server* createServer(const char* port, Routes* routes) {
     Server* s = malloc(sizeof(Server));
@@ -77,6 +163,7 @@ int32_t startServer(Server* server) {
 
 void default_client_loop(Server* s, int32_t client_fd) {
     char client_buffer[CLIENT_BUFFER_SIZE] = {0};
+
     ssize_t value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
 
     if (value_read <= 0) {
@@ -101,36 +188,60 @@ void default_client_loop(Server* s, int32_t client_fd) {
 
     char* filename = getRoute(s->routes, key);
 
-    FILE* fptr = fopen(filename, "r");
+    FILE* fptr = fopen(filename, "rb");
 
     if (fptr == NULL) {
         printf("There is no file to read from\n");
+        free(key);
+        free_http_request(r);
         return;
     }
 
-    char* html_body = read_file(fptr);
+    fseek(fptr, 0, SEEK_END);
+    int64_t file_size = ftell(fptr);
+    fseek(fptr, 0, SEEK_SET);
+
+    char* body = malloc(file_size);
+    size_t bytes_read = fread(body, 1, file_size, fptr);
+
     fclose(fptr);
 
+    if (bytes_read != file_size) {
+        printf("Failed to read the entire file\n");
+        free(body);
+        free(key);
+        free_http_request(r);
+        return;
+    }
+
+    char* file_extension = strrchr(filename, '.');
+
+    if (file_extension != NULL) {
+        file_extension += 1;
+    }
+
+    const char* content_type = getContentType(file_extension);
+
     char headers[512];
-    int content_length = strlen(html_body);
+
     snprintf(headers, sizeof(headers),
              "HTTP/1.1 200 OK\r\n"
-             "Content-Type: text/html\r\n"
-             "Content-Length: %d\r\n"
+             "Content-Type: %s\r\n"
+             "Content-Length: %ld\r\n"
              "Connection: close\r\n"
              "\r\n",
-             content_length);
+             content_type, file_size);
 
     send(client_fd, headers, strlen(headers), 0);
-    send(client_fd, html_body, content_length, 0);
+    send(client_fd, body, file_size, 0);
 
-    free_http_request(r);
     free(key);
+    free_http_request(r);
 }
 
 int32_t startServerWithDefaultLoop(Server* server) {
     startServer(server);
-    setClientLoop(server, default_client_loop);
+    updateClientLoop(server, default_client_loop);
     return 0;
 }
 
@@ -151,7 +262,7 @@ void closeServer(Server* server) {
     freeaddrinfo(server->res);
 }
 
-int32_t setClientLoop(Server* server, void (*function)(Server*, int32_t)) {
+int32_t updateClientLoop(Server* server, void (*function)(Server*, int32_t)) {
     while (1) {
         struct sockaddr_storage client_addr;
         socklen_t client_addrlen = sizeof(client_addr);

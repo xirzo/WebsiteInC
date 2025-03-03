@@ -23,6 +23,6 @@ int32_t startServer(Server *server);
 int32_t startServerWithDefaultLoop(Server *server);
 void closeServer(Server *server);
 
-int32_t setClientLoop(Server *server, void (*function)(Server *, int32_t));
+int32_t updateClientLoop(Server *server, void (*function)(Server *, int32_t));
 
 #endif
