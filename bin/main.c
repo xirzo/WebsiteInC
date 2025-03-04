@@ -17,7 +17,7 @@ int main(void) {
     insertRoute(routes, "", "index.html");
     insertRoute(routes, "style.css", "style.css");
     insertRoute(routes, "favicon.ico", "favicon.ico");
-    Server *s = createServer(port, routes);
+    Server *s = createServerWithDomain("xirzo.ru", "80", routes);
 
     startServerWithDefaultLoop(s);
 

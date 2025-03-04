@@ -110,6 +110,17 @@ Server* createServer(const char* port, Routes* routes) {
     return s;
 }
 
+Server* createServerWithDomain(const char* hostname, const char* port, Routes* routes) {
+    Server* s = malloc(sizeof(Server));
+
+    s->fd = -1;
+    s->port = port;
+    s->hostname = hostname;
+    s->routes = routes;
+
+    return s;
+}
+
 void freeServer(Server* server) {
     free(server);
 }
@@ -125,7 +136,8 @@ int32_t startServer(Server* server) {
 
     int32_t addrinfo_r;
 
-    if ((addrinfo_r = getaddrinfo(NULL, server->port, &hints, &server->res)) != 0) {
+    if ((addrinfo_r = getaddrinfo(server->hostname ? server->hostname : NULL,
+                                  server->port, &hints, &server->res)) != 0) {
         printf("Server getaddrinfo error: %s\n", strerror(errno));
         return -1;
     }
@@ -161,7 +173,7 @@ int32_t startServer(Server* server) {
     return 0;
 }
 
-void default_client_loop(Server* s, int32_t client_fd) {
+void defaultClientLoop(Server* s, int32_t client_fd) {
     char client_buffer[CLIENT_BUFFER_SIZE] = {0};
 
     ssize_t value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
@@ -177,12 +189,23 @@ void default_client_loop(Server* s, int32_t client_fd) {
     }
 
     HttpRequest* r;
-
     init_http_request(&r);
-
     parse_request_line(r, client_buffer);
 
-    char* key = malloc(sizeof(r->uri));
+    char* host_header = strstr(client_buffer, "Host:");
+    char host[256] = {0};
+
+    if (host_header) {
+        sscanf(host_header + 5, "%255s", host);
+        char* port_separator = strchr(host, ':');
+        if (port_separator) {
+            *port_separator = '\0';
+        }
+
+        printf("Request for host: %s\n", host);
+    }
+
+    char* key = malloc(strlen(r->uri) + 1);
 
     strcpy(key, r->uri + 1);
 
@@ -241,7 +264,7 @@ void default_client_loop(Server* s, int32_t client_fd) {
 
 int32_t startServerWithDefaultLoop(Server* server) {
     startServer(server);
-    updateClientLoop(server, default_client_loop);
+    updateClientLoop(server, defaultClientLoop);
     return 0;
 }
 

@@ -12,11 +12,14 @@ typedef struct Server
 {
     int32_t fd;
     const char *port;
+    const char *hostname;
     struct addrinfo *res;
     Routes *routes;
 } Server;
 
 Server *createServer(const char *port, Routes *routes);
+Server *createServerWithDomain(const char *hostname, const char *port, Routes *routes);
+
 void freeServer(Server *server);
 
 int32_t startServer(Server *server);
