@@ -138,12 +138,12 @@ int32_t startServer(Server* server) {
 
     if ((addrinfo_r = getaddrinfo(server->hostname ? server->hostname : NULL,
                                   server->port, &hints, &server->res)) != 0) {
-        printf("Server getaddrinfo error: %s\n", strerror(errno));
+        fprintf(stderr, "Server getaddrinfo error: %s\n", strerror(errno));
         return -1;
     }
 
     if ((server->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        printf("Server socket error: %s\n", strerror(errno));
+        fprintf(stderr, "Server socket error: %s\n", strerror(errno));
         return -1;
     }
 
@@ -152,23 +152,23 @@ int32_t startServer(Server* server) {
     int opt = 1;
 
     if (setsockopt(server->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        printf("Server setsockopt error: %s\n", strerror(errno));
+        fprintf(stderr, "Server setsockopt error: %s\n", strerror(errno));
         return -1;
     }
 
     if ((b = bind(server->fd, server->res->ai_addr, server->res->ai_addrlen)) == -1) {
-        printf("Server bind error: %s\n", strerror(errno));
+        fprintf(stderr, "Server bind error: %s\n", strerror(errno));
         return -1;
     }
 
     int32_t l = 0;
 
     if ((l = listen(server->fd, MAX_PENDING_CON)) == -1) {
-        printf("Server listen error: %s\n", strerror(errno));
+        fprintf(stderr, "Server listen error: %s\n", strerror(errno));
         return -1;
     }
 
-    printf("Server is listening on port: %s\n", server->port);
+    fprintf(stderr, "Server is listening on port: %s\n", server->port);
 
     return 0;
 }
@@ -179,12 +179,12 @@ void defaultClientLoop(Server* s, int32_t client_fd) {
     ssize_t value_read = read(client_fd, client_buffer, CLIENT_BUFFER_SIZE - 1);
 
     if (value_read <= 0) {
-        printf("Client disconnected or read error: %s\n", strerror(errno));
+        fprintf(stderr, "Client disconnected or read error: %s\n", strerror(errno));
         return;
     }
 
     if (value_read >= CLIENT_BUFFER_SIZE - 1) {
-        printf("Client data exceeds buffer size. Truncating.\n");
+        fprintf(stderr, "Client data exceeds buffer size. Truncating.\n");
         client_buffer[CLIENT_BUFFER_SIZE - 1] = '\0';
     }
 
@@ -202,7 +202,7 @@ void defaultClientLoop(Server* s, int32_t client_fd) {
             *port_separator = '\0';
         }
 
-        printf("Request for host: %s\n", host);
+        fprintf(stderr, "Request for host: %s\n", host);
     }
 
     char* key = malloc(strlen(r->uri) + 1);
@@ -214,7 +214,7 @@ void defaultClientLoop(Server* s, int32_t client_fd) {
     FILE* fptr = fopen(filename, "rb");
 
     if (fptr == NULL) {
-        printf("There is no file to read from\n");
+        fprintf(stderr, "There is no file to read from\n");
         free(key);
         free_http_request(r);
         return;
@@ -230,7 +230,7 @@ void defaultClientLoop(Server* s, int32_t client_fd) {
     fclose(fptr);
 
     if (bytes_read != file_size) {
-        printf("Failed to read the entire file\n");
+        fprintf(stderr, "Failed to read the entire file\n");
         free(body);
         free(key);
         free_http_request(r);
@@ -270,7 +270,7 @@ int32_t startServerWithDefaultLoop(Server* server) {
 
 void closeServer(Server* server) {
     if (server->fd == -1) {
-        printf("Server fd is not initalized to be closed");
+        fprintf(stderr, "Server fd is not initalized to be closed");
         return;
     }
 
@@ -278,7 +278,7 @@ void closeServer(Server* server) {
     server->fd = -1;
 
     if (server->res == NULL) {
-        printf("Server res is not initalized to be freed");
+        fprintf(stderr, "Server res is not initalized to be freed");
         return;
     }
 
@@ -293,11 +293,11 @@ int32_t updateClientLoop(Server* server, void (*function)(Server*, int32_t)) {
 
         if ((client_fd = accept(server->fd, (struct sockaddr*)&client_addr,
                                 &client_addrlen)) == -1) {
-            printf("Server accept error: %s\n", strerror(errno));
+            fprintf(stderr, "Server accept error: %s\n", strerror(errno));
             return -1;
         }
 
-        printf("Client connected.\n");
+        fprintf(stderr, "Client connected.\n");
 
         (*function)(server, client_fd);
 
