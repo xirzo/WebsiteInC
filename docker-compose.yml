@@ -1,0 +1,9 @@
+services:
+    web:
+        build: .
+        ports:
+          - 6000:6000
+        environment:
+          - port=6000
+        restart: always
+
