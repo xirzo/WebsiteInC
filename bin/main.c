@@ -1,27 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "server.h"
 
 int main(void) {
-    Routes *routes = malloc(sizeof(*routes));
+  Routes *routes = malloc(sizeof(*routes));
+  if (!routes) {
+    fprintf(stderr, "Failed to allocate memory for routes\n");
+    return EXIT_FAILURE;
+  }
 
-    const char *port = getenv("port");
+  const char *port = getenv("port");
 
-    if (port == NULL || strlen(port) == 0) {
-        printf("You did not specifty \"port\" environmental variable\n");
-        return EXIT_FAILURE;
-    }
+  if (!port || strlen(port) == 0) {
+    fprintf(stderr,
+            "You did not specify the \"port\" environmental variable\n");
+    free(routes);
+    return EXIT_FAILURE;
+  }
 
-    insertRoute(routes, "", "index.html");
-    insertRoute(routes, "style.css", "style.css");
-    insertRoute(routes, "favicon.ico", "favicon.ico");
-    Server *s = createServerWithDomain("xirzo.ru", "80", routes);
+  insertRoute(routes, "", "index.html");
+  insertRoute(routes, "style.css", "style.css");
+  insertRoute(routes, "favicon.ico", "favicon.ico");
 
-    startServerWithDefaultLoop(s);
+  Server *s = createServer(port, routes);
+  if (!s) {
+    fprintf(stderr, "Failed to create server\n");
+    free(routes);
+    return EXIT_FAILURE;
+  }
 
+  if (startServerWithDefaultLoop(s) != 0) {
+    fprintf(stderr, "Failed to start server on port %s\n", port);
     closeServer(s);
+    freeServer(s);
+    free(routes);
+    return EXIT_FAILURE;
+  }
 
-    return EXIT_SUCCESS;
+  closeServer(s);
+  freeServer(s);
+  free(routes);
+
+  return EXIT_SUCCESS;
 }
