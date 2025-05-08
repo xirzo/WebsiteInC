@@ -37,4 +37,8 @@ COPY --chown=website-in-c:website-in-c --from=build \
     ./website-in-c/build/bin/c-website \ 
     ./
 
+COPY --chown=website-in-c:website-in-c --from=build \
+    ./website-in-c/assets \ 
+    ./assets/
+
 ENTRYPOINT ["./c-website"]
