@@ -1,50 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
+#include "routes.h"
 #include "server.h"
 
-int main(void) {
-  Routes *routes = malloc(sizeof(*routes));
-  if (!routes) {
-    fprintf(stderr, "Failed to allocate memory for routes\n");
-    return EXIT_FAILURE;
-  }
-  routes->size = 0;
+#define MAX_PENDING_CONNECTIONS 10
+#define MAX_NUMBER_OF_ROUTES 10
+#define MAX_REQUEST_SIZE 16 * 1024 * 1024
 
-  const char *port = getenv("port");
+int main(int argc, char *argv[]) {
+  const char *PORT = getenv("PORT");
 
-  if (!port || strlen(port) == 0) {
+  if (!PORT || strlen(PORT) == 0) {
     fprintf(stderr,
-            "You did not specify the \"port\" environmental variable\n");
-    free(routes);
-    return EXIT_FAILURE;
+            "You did not specify the \"PORT\" environmental variable, setting "
+            "to 5000...\n");
+    PORT = "5000";
   }
 
-  insertRoute(routes, "", "/app/assets/index.html");
-  insertRoute(routes, "style.css", "/app/assets/style.css");
-  insertRoute(routes, "favicon.ico", "/app/assets/favicon.ico");
+  Routes *r = createRoutes(MAX_NUMBER_OF_ROUTES);
 
-  Server *s = createServer(port, routes);
-  if (!s) {
-    fprintf(stderr, "Failed to create server\n");
-    free(routes);
-    return EXIT_FAILURE;
-  }
+  insertRoute(r, "", "index.html");
+  insertRoute(r, "style.css", "style.css");
+  insertRoute(r, "favicon.ico", "favicon.ico");
 
-  if (startServerWithDefaultLoop(s) != 0) {
-    fprintf(stderr, "Failed to start server on port %s\n", port);
-    closeServer(s);
+  Server *s = createServer(PORT, MAX_PENDING_CONNECTIONS, MAX_REQUEST_SIZE, r);
+
+  if (startServer(s) != 0) {
+    fprintf(stderr, "error: Failed to start server\n");
     freeServer(s);
-    free(routes);
-    return EXIT_FAILURE;
+    return 1;
   }
 
-  freeRoutes(routes);
+  acceptClientConnection(s);
+
   closeServer(s);
   freeServer(s);
-  free(routes);
-
-  return EXIT_SUCCESS;
+  return 0;
 }

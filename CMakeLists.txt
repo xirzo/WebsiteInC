@@ -1,5 +1,3 @@
-# Build command example cmake --preset=clang -D CMAKE_BUILD_TYPE=DEBUG ../..
-
 cmake_minimum_required(VERSION 3.25.1)
 
 project(
@@ -9,7 +7,7 @@ project(
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(HttpParser REQUIRED)
+find_package(HttpServer REQUIRED)
 
 add_subdirectory(lib)
 add_subdirectory(bin)

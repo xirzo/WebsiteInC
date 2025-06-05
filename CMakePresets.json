@@ -14,7 +14,7 @@
             "binaryDir": "${sourceDir}/out/Debug",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_C_FLAGS": "-Wsuggest-override -Wall -Werror -std=c23"
+                "CMAKE_C_FLAGS": "-Wall -Werror -std=c23"
             }
         },
         {
