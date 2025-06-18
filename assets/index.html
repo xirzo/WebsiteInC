@@ -1,90 +1,65 @@
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Xirzo</title>
-      <link rel="stylesheet" href="style.css">
-      <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-      <link rel='shortcut icon' type='image/vnd.microsoft.icon' href='favicon.ico' />
-   </head>
-   <body>
-      <div class="crt">
-         <div class="screen">
-            <div class="scanline"></div>
-            <div class="terminal">
-               <div class="terminal-header">
-                  <div class="terminal-buttons">
-                     <span class="button"></span>
-                     <span class="button"></span>
-                     <span class="button"></span>
-                  </div>
-                  <div class="terminal-title">XIRZO-OS v1.0</div>
-               </div>
-               <div class="terminal-content">
-                  <div class="boot-sequence">
-                     <p>SYSTEM BOOT SEQUENCE INITIALIZED</p>
-                     <p>LOADING CORE MODULES...</p>
-                     <p>INITIALIZING MEMORY BANKS... OK</p>
-                     <p>CHECKING SYSTEM INTEGRITY... OK</p>
-                     <p>ESTABLISHING NETWORK CONNECTION... OK</p>
-                     <p>WELCOME TO XIRZO TERMINAL</p>
-                     <p>USER: xirzo</p>
-                     <p>STATUS: ONLINE</p>
-                  </div>
-                  <div class="command-line">
-                     <span class="prompt">xirzo@pc:~$</span> <span class="command">cat profile.txt</span>
-                  </div>
-                  <div class="command-output">
-                     <pre>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xirzo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="console"></div>
+    <div id="prompt">
+        <span id="promptPrefix">$</span>
+        <input type="text" id="commandInput" autofocus>
+    </div>
 
-         d8b                           
-         Y8P                           
-                                       
-888  888 888 888d888 88888888  .d88b.  
-`Y8bd8P' 888 888P"      d88P  d88""88b 
-  X88K   888 888       d88P   888  888 
-.d8""8b. 888 888      d88P    Y88..88P 
-888  888 888 888     88888888  "Y88P"  
-                            </pre>
-                     <b>
-                     Welcome to My Personal Website!
-                     </b>
-                     <p>
-                        Hi there! I’m xirzo, currently studying Software Engineering
-                        at ITMO University in Saint Petersburg. I really enjoy recreational programming,
-                        actually this specific website is written in C without external dependencies as a some kind of "challenge".
-                     </p>
-                     <br/>
-                     <p>
-                         Also checkout my GitHub:
-                     </p>
-
-                     <a href="https://github.com/xirzo" target="_blank" class="blink">https://github.com/xirzo</a>
-                  </div>
-                  <div class="command-line">
-                     <span class="prompt">xirzo@pc:~$</span> <span class="cursor blink">█</span>
-                  </div>
-               </div>
-            </div
-         </div>
-      </div>
-      <script>
-         document.addEventListener('DOMContentLoaded', function() {
-             const commandElement = document.querySelector('.command');
-             const originalCommand = commandElement.textContent;
-         
-             commandElement.textContent = '';
-             
-             let i = 0;
-             const typeInterval = setInterval(() => {
-                 if (i < originalCommand.length) {
-                     commandElement.textContent += originalCommand.charAt(i);
-                     i++;
-                 } else {
-                     clearInterval(typeInterval);
-                 }
-             }, 100);
-         });
-      </script>
-   </body>
+    <script>
+        const consoleElement = document.getElementById('console');
+        const commandInput = document.getElementById('commandInput');
+        
+        addOutput("Welcome to my website\nType commands and press Enter");
+        
+        commandInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    addCommand(command);
+                    sendToServer(command);
+                    commandInput.value = '';
+                }
+            }
+        });
+        
+        function addCommand(command) {
+            const commandElement = document.createElement('div');
+            commandElement.className = 'command';
+            commandElement.textContent = '$ ' + command;
+            consoleElement.appendChild(commandElement);
+        }
+        
+        function addOutput(output) {
+            const outputElement = document.createElement('div');
+            outputElement.className = 'output';
+            outputElement.textContent = output;
+            consoleElement.appendChild(outputElement);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+        
+        function sendToServer(command) {
+            fetch('/console', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: command
+            })
+            .then(response => response.text())
+            .then(response => {
+                addOutput(response);
+            })
+            .catch(error => {
+                addOutput("Error connecting to server: " + error);
+            });
+        }
+    </script>
+</body>
 </html>

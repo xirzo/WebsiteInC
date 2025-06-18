@@ -9,14 +9,15 @@
 #define MAX_NUMBER_OF_ROUTES 10
 #define MAX_REQUEST_SIZE 16 * 1024 * 1024
 
+// TODO: Parse body on HttpParser
+
 int main(int argc, char *argv[]) {
   const char *PORT = getenv("PORT");
 
   if (!PORT || strlen(PORT) == 0) {
     fprintf(stderr,
-            "You did not specify the \"PORT\" environmental variable, setting "
-            "to 5000...\n");
-    PORT = "5000";
+            "You did not specify the \"PORT\" environmental variable\n");
+    return 1;
   }
 
   Routes *r = createRoutes(MAX_NUMBER_OF_ROUTES);
@@ -24,6 +25,8 @@ int main(int argc, char *argv[]) {
   insertRoute(r, "", "index.html");
   insertRoute(r, "style.css", "style.css");
   insertRoute(r, "favicon.ico", "favicon.ico");
+
+  insertRoute(r, "console", "favicon.ico");
 
   Server *s = createServer(PORT, MAX_PENDING_CONNECTIONS, MAX_REQUEST_SIZE, r);
 

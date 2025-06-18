@@ -14,6 +14,14 @@ RUN git clone https://github.com/xirzo/httpparser \
     cmake --build . && \                                                                                          
     make install  
 
+RUN git clone https://github.com/xirzo/httpserver \                                                                   
+    /tmp/httpserver && \                                                                                          
+    mkdir -p /tmp/httpserver/build && \                                                                           
+    cd /tmp/httpserver/build && \                                                                                 
+    cmake ..  && \                                 
+    cmake --build . && \                                                                                          
+    cmake --install . --prefix /usr/local
+
 WORKDIR /website-in-c
 COPY assets/ ./assets/
 COPY bin/ ./bin/
