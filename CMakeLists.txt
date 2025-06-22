@@ -9,5 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(HttpServer REQUIRED)
 
-add_subdirectory(lib)
-add_subdirectory(bin)
+add_executable(${PROJECT_NAME} main.c)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_BINARY_DIR})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE HttpServer::HttpServer)

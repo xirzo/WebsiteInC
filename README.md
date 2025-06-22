@@ -24,18 +24,15 @@ This project aims to create a fully functional website using the C programming l
 - 🛠 CMake (version 3.10 or higher)
 - 📦 [Http Parser Library](https://github.com/xirzo/httpparser)
 
-## 🔧 Building the Project
+## 🔧 Building
 
 ```bash
-# Clone the repository
-git clone https://github.com/xirzo/C-Website.git
-cd C-Website
+git clone https://github.com/xirzo/WebsiteInC
+cd WebsiteInC
 
-# Create build directory
 mkdir build
 cd build
 
-# Configure and build
 cmake .. --preset=gcc
 make
 ```
@@ -45,7 +42,7 @@ make
 After building, set the port env and run the server:
 
 ```bash
-export port=5000
+export PORT=5000
 ```
 
 ```bash
